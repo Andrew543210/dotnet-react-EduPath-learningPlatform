@@ -27,6 +27,7 @@ services:
       ConnectionStrings__Postgres: Host=db;Port=5432;Database=edupath;Username=edupath;Password=${POSTGRES_PASSWORD:-edupath}
       Jwt__SigningKey: ${JWT_SIGNING_KEY:-edupath-docker-signing-key-change-me-0123456789}
       Cors__Origins__0: http://localhost:8080
+      ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
     volumes:
       - api-files:/app/App_Data
     healthcheck:
