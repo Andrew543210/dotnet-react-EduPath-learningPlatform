@@ -412,14 +412,17 @@ public sealed class TeachingAndAdminTests(EduPathFactory factory)
     public async Task Admin_manages_users_roles_and_blocking()
     {
         var admin = await factory.SignInAsync("admin@edupath.dev");
-        var (_, user) = await factory.RegisterStudentAsync();
+        var (studentClient, user) = await factory.RegisterStudentAsync();
+        Assert.Equal(HttpStatusCode.OK, (await studentClient.GetAsync("/api/auth/me")).StatusCode);
 
         var promoted = await admin.PutJson<UserDto>($"/api/admin/users/{user.Id}/role", new ChangeRoleRequest(UserRole.Teacher));
         Assert.Equal(UserRole.Teacher, promoted.Role);
+        Assert.Equal(HttpStatusCode.Unauthorized, (await studentClient.GetAsync("/api/auth/me")).StatusCode);
         var teacherClient = await factory.SignInAsync(user.Email);
         Assert.Equal(HttpStatusCode.OK, (await teacherClient.GetAsync("/api/teach/overview")).StatusCode);
 
         await admin.PutJson<UserDto>($"/api/admin/users/{user.Id}/block", new BlockUserRequest(true));
+        Assert.Equal(HttpStatusCode.Unauthorized, (await teacherClient.GetAsync("/api/teach/overview")).StatusCode);
         var blocked = await factory.CreateClient().Post("/api/auth/login", new LoginRequest(user.Email, EduPathFactory.Password));
         Assert.Equal(HttpStatusCode.Unauthorized, blocked.StatusCode);
 

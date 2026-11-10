@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Security.Claims;
 using System.Text.Json.Serialization;
 using System.Threading.RateLimiting;
 using EduPath.Api.Controllers;
@@ -11,6 +12,7 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.SignalR;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -71,6 +73,7 @@ public static class ApiServices
                             context.Token = token;
                         return Task.CompletedTask;
                     },
+                    OnTokenValidated = RejectInactiveAccountsAsync,
                 };
             });
         services.AddAuthorization();
@@ -95,6 +98,25 @@ public static class ApiServices
 
         services.AddHealthChecks().AddCheck<DatabaseHealthCheck>("database");
         return services;
+    }
+
+    private static async Task RejectInactiveAccountsAsync(TokenValidatedContext context)
+    {
+        var principal = context.Principal!;
+        if (!int.TryParse(principal.FindFirstValue(JwtTokenService.SubjectClaim), out var userId))
+        {
+            context.Fail("The token has no valid subject");
+            return;
+        }
+
+        var db = context.HttpContext.RequestServices.GetRequiredService<IAppDbContext>();
+        var account = await db.Users.AsNoTracking()
+            .Where(u => u.Id == userId)
+            .Select(u => new { u.Role, u.IsBlocked })
+            .FirstOrDefaultAsync(context.HttpContext.RequestAborted);
+
+        if (account is null || account.IsBlocked || account.Role.ToString() != principal.FindFirstValue(JwtTokenService.RoleClaim))
+            context.Fail("The account is blocked, removed or its role has changed");
     }
 }
 
