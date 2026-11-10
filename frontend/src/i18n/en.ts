@@ -160,6 +160,7 @@ export const en: Messages = {
     signInToEnroll: 'Sign in as a student to enroll',
     staffNote: 'Only students can enroll. You are viewing the course in read-only mode.',
     preview: 'Preview: the course isn’t published yet and students can’t see it.',
+    archived: 'This course has been archived. New students can no longer enroll, but you keep access to its lessons and certificate.',
     moderationNote: 'Moderator’s comment',
     hasTest: 'Test',
     locked: 'Available after enrolling',

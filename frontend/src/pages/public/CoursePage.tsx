@@ -55,7 +55,7 @@ function PurchaseBox({ details }: { details: CourseDetails }) {
             {t.course.editCourse}
           </ButtonLink>
         )}
-        {firstLesson && (
+        {isOwnerOrAdmin && firstLesson && (
           <ButtonLink to={`/learn/lessons/${firstLesson}`} variant="soft" block>
             {t.course.openLessons}
           </ButtonLink>
@@ -155,6 +155,11 @@ export default function CoursePage() {
               </p>
             )}
           </Callout>
+        </div>
+      )}
+      {!details.isPreview && course.status === 'Archived' && (
+        <div className={s.notice}>
+          <Callout>{t.course.archived}</Callout>
         </div>
       )}
 
