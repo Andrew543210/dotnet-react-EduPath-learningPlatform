@@ -18,7 +18,7 @@ public sealed class DomainEventDispatcher(IServiceProvider services) : IDomainEv
             var handlerType = typeof(IDomainEventHandler<>).MakeGenericType(domainEvent.GetType());
             foreach (var handler in services.GetServices(handlerType))
             {
-                var method = handlerType.GetMethod(nameof(IDomainEventHandler<IDomainEvent>.HandleAsync))!;
+                var method = handlerType.GetMethod(nameof(IDomainEventHandler<>.HandleAsync))!;
                 await (Task)method.Invoke(handler, [domainEvent, ct])!;
             }
         }

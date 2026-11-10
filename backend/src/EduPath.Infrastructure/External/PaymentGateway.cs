@@ -27,7 +27,7 @@ public sealed class SandboxPaymentGateway(IOptions<PaymentGatewayOptions> option
     {
         if (options.Value.SimulatedLatencyMs > 0) await Task.Delay(options.Value.SimulatedLatencyMs, cancellationToken);
 
-        var digits = new string(request.CardNumber.Where(char.IsDigit).ToArray());
+        var digits = string.Concat(request.CardNumber.Where(char.IsDigit));
         var last4 = digits.Length >= 4 ? digits[^4..] : null;
 
         if (!PassesLuhn(digits)) return Fail("номер картки недійсний", last4);
