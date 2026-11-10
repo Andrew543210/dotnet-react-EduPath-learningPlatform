@@ -1,0 +1,60 @@
+.track {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: center;
+}
+
+.stop {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  height: 16px;
+}
+
+.stop:not(:last-child)::after {
+  content: '';
+  flex: 1;
+  height: 2px;
+  margin-inline: 3px;
+  border-radius: 2px;
+  background: var(--border-strong);
+}
+
+.stop:last-child {
+  flex: none;
+}
+
+.stop::before {
+  content: '';
+  width: 12px;
+  height: 12px;
+  flex: none;
+  border-radius: 50%;
+  border: 2px solid var(--border-strong);
+  background: var(--surface);
+  box-sizing: border-box;
+}
+
+.test::before {
+  border-radius: 3px;
+}
+
+.done::before {
+  border-color: var(--primary);
+  background: var(--primary);
+}
+
+.done:not(:last-child)::after {
+  background: var(--primary);
+}
+
+.current::before {
+  width: 14px;
+  height: 14px;
+  border-color: var(--primary);
+  background: var(--surface);
+  box-shadow: 0 0 0 4px var(--primary-soft);
+}
