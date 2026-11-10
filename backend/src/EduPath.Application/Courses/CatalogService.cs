@@ -108,7 +108,8 @@ public sealed class CatalogService(IAppDbContext db, ICurrentUser currentUser)
 
         var userId = currentUser.Id;
         var isOwner = userId == course.TeacherId || currentUser.IsAdmin();
-        if (!course.IsAvailable() && !isOwner) throw new NotFoundException("Курс не знайдено або ще не опублікований");
+        if (!course.IsAvailable() && !isOwner && !await HasAccessAsync(userId, courseId, ct))
+            throw new NotFoundException("Курс не знайдено або ще не опублікований");
 
         var card = await db.Courses.Where(c => c.Id == courseId).ToCards(db).FirstAsync(ct);
         var teacher = await db.Users.AsNoTracking()
@@ -147,7 +148,7 @@ public sealed class CatalogService(IAppDbContext db, ICurrentUser currentUser)
             .ToList();
 
         return new CourseDetailsDto(card, course.Description, course.Outcomes, teacher, lessons,
-            course.Lessons.Sum(l => l.Tests.Count), learner, !course.IsAvailable(),
+            course.Lessons.Sum(l => l.Tests.Count), learner, isOwner && !course.IsAvailable(),
             isOwner ? course.ModerationComment : null);
     }
 
@@ -164,4 +165,8 @@ public sealed class CatalogService(IAppDbContext db, ICurrentUser currentUser)
             .ToCards(db).ToListAsync(ct);
         return (teacher, courses.OrderByDescending(c => c.StudentCount).ToList());
     }
+
+    private async Task<bool> HasAccessAsync(int? userId, int courseId, CancellationToken ct) =>
+        userId is not null && await db.Enrollments.AnyAsync(e =>
+            e.UserId == userId && e.CourseId == courseId && e.Status != EnrollmentStatus.Pending, ct);
 }

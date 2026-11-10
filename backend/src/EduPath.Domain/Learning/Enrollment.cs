@@ -65,8 +65,23 @@ public class Enrollment : Entity
     public void RecalculateProgress(IReadOnlyCollection<int> courseLessonIds, DateTime now)
     {
         if (courseLessonIds.Count == 0) return;
+        UpdateProgress(ProgressOver(courseLessonIds), now);
+    }
+
+    public bool SyncWithProgram(IReadOnlyCollection<int> courseLessonIds, DateTime now)
+    {
+        if (Status != EnrollmentStatus.Active || courseLessonIds.Count == 0) return false;
+        Progress = ProgressOver(courseLessonIds);
+        if (Progress < 100) return false;
+        Status = EnrollmentStatus.Completed;
+        CompletedAt = now;
+        return true;
+    }
+
+    private int ProgressOver(IReadOnlyCollection<int> courseLessonIds)
+    {
         var completed = courseLessonIds.Count(IsLessonCompleted);
-        UpdateProgress(completed == courseLessonIds.Count ? 100 : completed * 100 / courseLessonIds.Count, now);
+        return completed == courseLessonIds.Count ? 100 : completed * 100 / courseLessonIds.Count;
     }
 }
 

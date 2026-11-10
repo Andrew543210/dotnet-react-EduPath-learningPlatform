@@ -1,4 +1,5 @@
 using EduPath.Application.Abstractions;
+using EduPath.Application.Certificates;
 using EduPath.Application.Common;
 using EduPath.Application.Courses;
 using EduPath.Application.Notifications;
@@ -52,6 +53,7 @@ public sealed class CourseAuthoringService(
     ICurrentUser currentUser,
     IFileStorage storage,
     NotificationService notifications,
+    CertificateService certificates,
     TimeProvider time)
 {
     public const long MaxMaterialBytes = 20 * 1024 * 1024;
@@ -131,6 +133,7 @@ public sealed class CourseAuthoringService(
         var course = await LoadOwnedCourseAsync(courseId, ct);
         course.AddLesson(request.Title, request.Content ?? "", request.DurationMinutes, request.VideoUrl);
         await db.SaveChangesAsync(ct);
+        await SyncEnrollmentsAsync(course, ct);
         return await ToEditorAsync(course, ct);
     }
 
@@ -159,6 +162,7 @@ public sealed class CourseAuthoringService(
         course.RemoveLesson(lesson);
         db.Lessons.Remove(lesson);
         await db.SaveChangesAsync(ct);
+        await SyncEnrollmentsAsync(course, ct);
         return await ToEditorAsync(course, ct);
     }
 
@@ -238,6 +242,21 @@ public sealed class CourseAuthoringService(
     private async Task EnsureCategoryExistsAsync(int categoryId, CancellationToken ct)
     {
         if (!await db.Categories.AnyAsync(c => c.Id == categoryId, ct)) throw new DomainException("Оберіть категорію зі списку");
+    }
+
+    private async Task SyncEnrollmentsAsync(Course course, CancellationToken ct)
+    {
+        var lessonIds = course.Lessons.Select(l => l.Id).ToList();
+        var enrollments = await db.Enrollments.Include(e => e.CompletedLessons)
+            .Where(e => e.CourseId == course.Id && e.Status == EnrollmentStatus.Active)
+            .ToListAsync(ct);
+
+        var now = time.UtcNow();
+        var finished = enrollments.Where(e => e.SyncWithProgram(lessonIds, now)).ToList();
+        await db.SaveChangesAsync(ct);
+
+        foreach (var enrollment in finished)
+            await certificates.GenerateAsync(enrollment.UserId, course, finalTestResultId: null, ct);
     }
 
     private async Task<Course> LoadOwnedCourseAsync(int courseId, CancellationToken ct)

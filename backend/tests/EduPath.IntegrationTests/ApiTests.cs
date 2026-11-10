@@ -369,6 +369,43 @@ public sealed class TeachingAndAdminTests(EduPathFactory factory)
     }
 
     [Fact]
+    public async Task Program_changes_update_students_and_archive_keeps_their_access()
+    {
+        var teacher = await factory.SignInAsync("teacher@edupath.dev");
+        var admin = await factory.SignInAsync("admin@edupath.dev");
+        var category = (await teacher.GetJson<List<CategoryDto>>("/api/categories")).First(c => c.Slug == "programming");
+        var created = await teacher.PostJson<CourseEditorDto>("/api/teach/courses", new UpsertCourseRequest(
+            category.Id, "Git hooks для команди", "Автоматичні перевірки перед комітом.", "Опис", 0m,
+            CourseLevel.Beginner, ["Налаштовувати pre-commit"]));
+        await teacher.PostJson<CourseEditorDto>($"/api/teach/courses/{created.Id}/lessons", new UpsertLessonRequest("pre-commit", "Текст", 10, null));
+        var editor = await teacher.PostJson<CourseEditorDto>($"/api/teach/courses/{created.Id}/lessons", new UpsertLessonRequest("commit-msg", "Текст", 10, null));
+        await teacher.PostJson<CourseEditorDto>($"/api/teach/courses/{created.Id}/submit");
+        await admin.Post($"/api/admin/moderation/{created.Id}/approve");
+
+        var (student, _) = await factory.RegisterStudentAsync();
+        await student.PostJson<EnrollmentDto>($"/api/courses/{created.Id}/enroll");
+        var first = await student.PostJson<LessonProgressDto>($"/api/lessons/{editor.Lessons[0].Id}/complete");
+        Assert.Equal(50, first.CourseProgress);
+        var repeated = await student.PostJson<LessonProgressDto>($"/api/lessons/{editor.Lessons[0].Id}/complete");
+        Assert.Equal(50, repeated.CourseProgress);
+        var lessonNotices = (await student.GetJson<NotificationPageDto>("/api/notifications")).Page.Items
+            .Count(n => n.Message.Contains("pre-commit"));
+        Assert.Equal(1, lessonNotices);
+
+        Assert.Equal(HttpStatusCode.OK, (await teacher.DeleteAsync($"/api/teach/lessons/{editor.Lessons[1].Id}")).StatusCode);
+        var mine = (await student.GetJson<List<MyCourseDto>>("/api/me/courses")).Single(c => c.CourseId == created.Id);
+        Assert.Equal(100, mine.Progress);
+        Assert.Equal(EnrollmentStatus.Completed, mine.Status);
+        Assert.Contains(await student.GetJson<List<CertificateDto>>("/api/certificates"), c => c.CourseId == created.Id);
+
+        Assert.Equal(CourseStatus.Archived, (await teacher.PostJson<CourseEditorDto>($"/api/teach/courses/{created.Id}/archive")).Status);
+        var details = await student.GetJson<CourseDetailsDto>($"/api/courses/{created.Id}");
+        Assert.Equal(CourseStatus.Archived, details.Course.Status);
+        Assert.False(details.IsPreview);
+        Assert.Equal(HttpStatusCode.NotFound, (await factory.CreateClient().GetAsync($"/api/courses/{created.Id}")).StatusCode);
+    }
+
+    [Fact]
     public async Task Teacher_cannot_edit_someone_elses_course()
     {
         var teacher = await factory.SignInAsync("teacher@edupath.dev");

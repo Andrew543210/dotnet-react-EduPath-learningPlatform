@@ -179,7 +179,7 @@ public sealed class LearningService(
     {
         var course = lesson.Course!;
         var now = time.UtcNow();
-        lesson.MarkCompleted(enrollment, now);
+        var newlyCompleted = lesson.MarkCompleted(enrollment, now);
         enrollment.RecalculateProgress(course.Lessons.Select(l => l.Id).ToList(), now);
 
         var ordered = course.OrderedLessons().ToList();
@@ -197,7 +197,7 @@ public sealed class LearningService(
             state = LearningStateMachine.Fire(state, LearningTrigger.GenerateCertificate);
             certificateId = certificate.Id;
         }
-        else
+        else if (newlyCompleted)
         {
             notifications.Notify(enrollment.UserId, NotificationType.Course,
                 $"Урок «{lesson.Title}» зараховано. Прогрес курсу: {enrollment.Progress}%.",

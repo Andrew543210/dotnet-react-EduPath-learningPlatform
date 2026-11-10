@@ -60,6 +60,31 @@ public class LearningTests
     }
 
     [Fact]
+    public void Program_changes_resync_progress_without_counting_as_activity()
+    {
+        var (course, lessons) = CourseWithLessons(3);
+        var enrollment = Enrollment.Create(5, course.Id, Now);
+        enrollment.Activate(Now);
+        lessons[0].MarkCompleted(enrollment, Now);
+        lessons[1].MarkCompleted(enrollment, Now);
+        enrollment.RecalculateProgress(lessons.Select(l => l.Id).ToList(), Now);
+        Assert.Equal(66, enrollment.Progress);
+
+        var later = Now.AddDays(3);
+        Assert.False(enrollment.SyncWithProgram(lessons.Select(l => l.Id).Append(200).ToList(), later));
+        Assert.Equal(50, enrollment.Progress);
+
+        Assert.True(enrollment.SyncWithProgram([lessons[0].Id, lessons[1].Id], later));
+        Assert.Equal(100, enrollment.Progress);
+        Assert.Equal(EnrollmentStatus.Completed, enrollment.Status);
+        Assert.Equal(later, enrollment.CompletedAt);
+        Assert.Equal(Now, enrollment.LastActivityAt);
+
+        Assert.False(enrollment.SyncWithProgram(lessons.Select(l => l.Id).ToList(), later));
+        Assert.Equal(100, enrollment.Progress);
+    }
+
+    [Fact]
     public void Enrollment_cannot_be_activated_twice()
     {
         var enrollment = Enrollment.Create(5, 7, Now);
