@@ -507,6 +507,10 @@ namespace EduPath.Infrastructure.Persistence.Migrations.Postgres
 
                     b.HasIndex("UserId", "CourseId");
 
+                    b.HasIndex(new[] { "UserId", "CourseId" }, "IX_Payments_PendingPerCourse")
+                        .IsUnique()
+                        .HasFilter("\"Status\" = 'Pending'");
+
                     b.ToTable("Payments");
                 });
 

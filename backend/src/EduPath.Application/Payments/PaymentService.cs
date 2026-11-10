@@ -9,6 +9,7 @@ using EduPath.Domain.Payments;
 using EduPath.Domain.Users;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace EduPath.Application.Payments;
 
@@ -34,8 +35,11 @@ public sealed class PaymentService(
     IPaymentGateway gateway,
     LearningService learning,
     NotificationService notifications,
-    TimeProvider time)
+    TimeProvider time,
+    ILogger<PaymentService> logger)
 {
+    public static readonly TimeSpan AbandonedAfter = TimeSpan.FromMinutes(15);
+
     public async Task<PaymentDto> CheckoutAsync(CheckoutRequest request, CancellationToken ct)
     {
         var userId = currentUser.RequireId();
@@ -46,28 +50,38 @@ public sealed class PaymentService(
         if (course.IsFree) throw new DomainException("Курс безкоштовний: запишіться на нього без оплати");
 
         var enrollment = await learning.GetEnrollmentAsync(userId, course.Id, ct);
-        var lastPayment = await db.Payments.AsNoTracking()
+        var lastPayment = await db.Payments
             .Where(p => p.UserId == userId && p.CourseId == course.Id)
             .OrderByDescending(p => p.Id).FirstOrDefaultAsync(ct);
+        if (lastPayment is { Status: PaymentStatus.Pending } && time.UtcNow() - lastPayment.PaymentDate > AbandonedAfter)
+            lastPayment.Process(false, null, "оплату не було завершено", null, time.UtcNow());
 
         var state = LearningStateMachine.Resolve(enrollment, lastPayment, hasCertificate: false);
         if (state == LearningState.CourseNotPurchased) state = LearningStateMachine.Fire(state, LearningTrigger.SelectCourse);
+        if (state == LearningState.ProcessingPayment)
+            throw new ConflictException("Оплата цього курсу вже обробляється. Зачекайте кілька секунд");
         if (!LearningStateMachine.CanFire(state, LearningTrigger.PayForCourse))
             throw new ConflictException("Курс уже придбано — він є у розділі «Мої курси»");
         state = LearningStateMachine.Fire(state, LearningTrigger.PayForCourse);
 
         var payment = Payment.Create(userId, course, time.UtcNow());
         db.Payments.Add(payment);
-        await db.SaveChangesAsync(ct);
+        try
+        {
+            await db.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateException)
+        {
+            throw new ConflictException("Оплата цього курсу вже обробляється. Зачекайте кілька секунд");
+        }
 
-        var response = await gateway.ChargeAsync(new PaymentRequest(
-            payment.Amount, payment.Currency, request.CardNumber, request.CardHolder, $"EduPath: {course.Title}"), ct);
+        var response = await ChargeAsync(payment, request, course.Title);
         payment.Process(response.Succeeded, response.TransactionId, response.Error, response.CardLast4, time.UtcNow());
 
         state = LearningStateMachine.Fire(state, payment.Confirm() ? LearningTrigger.PaymentSuccessful : LearningTrigger.PaymentFailed);
         if (state == LearningState.EnrolledInCourse)
         {
-            await learning.EnrollStudentAsync(userId, course, ct);
+            await learning.EnrollStudentAsync(userId, course, CancellationToken.None);
             notifications.Notify(userId, NotificationType.Payment,
                 $"Оплату {payment.Amount:0.##} грн за курс «{course.Title}» підтверджено.", $"/payments/{payment.Id}", sendEmail: true);
         }
@@ -77,9 +91,23 @@ public sealed class PaymentService(
                 $"Оплата курсу «{course.Title}» не пройшла: {payment.FailureReason}. Спробуйте іншу картку.",
                 $"/courses/{course.Id}/checkout");
         }
-        await db.SaveChangesAsync(ct);
+        await db.SaveChangesAsync(CancellationToken.None);
 
         return ToDto(payment, course.Title, course.OrderedLessons().FirstOrDefault()?.Id);
+    }
+
+    private async Task<PaymentGatewayResult> ChargeAsync(Payment payment, CheckoutRequest request, string courseTitle)
+    {
+        try
+        {
+            return await gateway.ChargeAsync(new PaymentRequest(
+                payment.Amount, payment.Currency, request.CardNumber, request.CardHolder, $"EduPath: {courseTitle}"), CancellationToken.None);
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TimeoutException or InvalidOperationException)
+        {
+            logger.LogError(ex, "Платіжний шлюз не обробив платіж {PaymentId}", payment.Id);
+            return new PaymentGatewayResult(false, null, "платіжний сервіс тимчасово недоступний", null);
+        }
     }
 
     public async Task<IReadOnlyList<PaymentDto>> GetMineAsync(CancellationToken ct)

@@ -478,6 +478,10 @@ namespace EduPath.Infrastructure.Persistence.Migrations.Sqlite
 
                     b.HasIndex("UserId", "CourseId");
 
+                    b.HasIndex(new[] { "UserId", "CourseId" }, "IX_Payments_PendingPerCourse")
+                        .IsUnique()
+                        .HasFilter("\"Status\" = 'Pending'");
+
                     b.ToTable("Payments");
                 });
 

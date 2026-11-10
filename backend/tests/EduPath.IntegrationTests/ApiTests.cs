@@ -15,6 +15,9 @@ using EduPath.Domain.Courses;
 using EduPath.Domain.Learning;
 using EduPath.Domain.Payments;
 using EduPath.Domain.Users;
+using EduPath.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EduPath.IntegrationTests;
 
@@ -257,6 +260,44 @@ public sealed class LearningFlowTests(EduPathFactory factory)
 
         var history = await student.GetJson<List<PaymentDto>>("/api/payments");
         Assert.Equal([PaymentStatus.Succeeded, PaymentStatus.Failed], history.Select(p => p.Status));
+    }
+
+    [Fact]
+    public async Task Abandoned_payment_does_not_block_a_new_checkout()
+    {
+        var (student, user) = await factory.RegisterStudentAsync();
+        var course = await FindCourseAsync(student, "SQL для аналітиків: від SELECT до віконних функцій");
+        await AddPendingPaymentAsync(user.Id, course.Id, DateTime.UtcNow - PaymentService.AbandonedAfter - TimeSpan.FromMinutes(1));
+
+        var paid = await student.PostJson<PaymentDto>("/api/payments/checkout",
+            new CheckoutRequest(course.Id, "4242 4242 4242 4242", "Test Student", "12/30", "123"));
+        Assert.Equal(PaymentStatus.Succeeded, paid.Status);
+
+        var history = await student.GetJson<List<PaymentDto>>("/api/payments");
+        Assert.Equal([PaymentStatus.Succeeded, PaymentStatus.Failed], history.Select(p => p.Status));
+    }
+
+    [Fact]
+    public async Task Only_one_payment_per_course_can_be_in_progress()
+    {
+        var (student, user) = await factory.RegisterStudentAsync();
+        var course = await FindCourseAsync(student, "Дизайн-системи у Figma: токени, компоненти, документація");
+        await AddPendingPaymentAsync(user.Id, course.Id, DateTime.UtcNow);
+
+        var second = await student.Post("/api/payments/checkout",
+            new CheckoutRequest(course.Id, "4242 4242 4242 4242", "Test Student", "12/30", "123"));
+        Assert.Equal(HttpStatusCode.Conflict, second.StatusCode);
+
+        await Assert.ThrowsAsync<DbUpdateException>(() => AddPendingPaymentAsync(user.Id, course.Id, DateTime.UtcNow));
+    }
+
+    private async Task AddPendingPaymentAsync(int userId, int courseId, DateTime createdAt)
+    {
+        using var scope = factory.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var course = await db.Courses.FirstAsync(c => c.Id == courseId);
+        db.Payments.Add(Payment.Create(userId, course, createdAt));
+        await db.SaveChangesAsync();
     }
 
     [Fact]

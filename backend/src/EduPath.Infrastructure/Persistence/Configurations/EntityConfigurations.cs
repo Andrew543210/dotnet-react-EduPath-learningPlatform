@@ -174,6 +174,9 @@ internal sealed class PaymentConfiguration : IEntityTypeConfiguration<Payment>
         b.HasOne<User>().WithMany().HasForeignKey(p => p.UserId).OnDelete(DeleteBehavior.Cascade);
         b.HasOne(p => p.Course).WithMany().HasForeignKey(p => p.CourseId).OnDelete(DeleteBehavior.Restrict);
         b.HasIndex(p => new { p.UserId, p.CourseId });
+        b.HasIndex(p => new { p.UserId, p.CourseId }, "IX_Payments_PendingPerCourse")
+            .IsUnique()
+            .HasFilter($"\"Status\" = '{nameof(PaymentStatus.Pending)}'");
     }
 }
 
