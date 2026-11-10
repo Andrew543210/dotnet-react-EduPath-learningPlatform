@@ -59,6 +59,7 @@ public sealed class LearningService(
     ICurrentUser currentUser,
     NotificationService notifications,
     CertificateService certificates,
+    IFileStorage storage,
     TimeProvider time)
 {
     public async Task<EnrollmentDto> EnrollFreeAsync(int courseId, CancellationToken ct)
@@ -148,7 +149,7 @@ public sealed class LearningService(
 
         return new LessonDto(
             lesson.Id, course.Id, course.Title, course.Category!.Trail, lesson.Title, lesson.Content, lesson.OrderNumber,
-            lesson.DurationMinutes, lesson.VideoUrl, lesson.MaterialUrl, lesson.MaterialName, tests,
+            lesson.DurationMinutes, lesson.VideoUrl, storage.GetDownloadUrl(lesson.MaterialUrl), lesson.MaterialName, tests,
             enrollment?.IsLessonCompleted(lesson.Id) ?? false,
             index > 0 ? ordered[index - 1].Id : null,
             index < ordered.Count - 1 ? ordered[index + 1].Id : null,

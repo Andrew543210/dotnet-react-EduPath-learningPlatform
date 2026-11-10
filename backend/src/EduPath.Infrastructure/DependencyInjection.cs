@@ -69,6 +69,7 @@ public static class DependencyInjection
         {
             if (!Path.IsPathRooted(o.RootPath)) o.RootPath = Path.Combine(environment.ContentRootPath, o.RootPath);
         });
+        services.AddSingleton<FileUrlSigner>();
         services.AddSingleton<IFileStorage, LocalFileStorage>();
         services.AddSingleton<IEmailSender, LoggingEmailSender>();
 

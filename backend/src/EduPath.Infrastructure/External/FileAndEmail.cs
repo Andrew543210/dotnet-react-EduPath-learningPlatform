@@ -1,5 +1,9 @@
+using System.Globalization;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.RegularExpressions;
 using EduPath.Application.Abstractions;
+using EduPath.Infrastructure.Security;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -12,11 +16,38 @@ public sealed class StorageOptions
     public string RootPath { get; set; } = "App_Data/files";
 
     public string PublicPath { get; set; } = "/files";
+
+    public TimeSpan DownloadLinkLifetime { get; set; } = TimeSpan.FromHours(6);
 }
 
-public sealed partial class LocalFileStorage(IOptions<StorageOptions> options) : IFileStorage
+public sealed class FileUrlSigner(IOptions<StorageOptions> storage, IOptions<JwtOptions> jwt, TimeProvider time)
+{
+    private const int Granularity = 3600;
+
+    private readonly byte[] key = HMACSHA256.HashData(Encoding.UTF8.GetBytes(jwt.Value.SigningKey), "edupath-file-downloads"u8);
+
+    public string Sign(string url)
+    {
+        var expires = (time.GetUtcNow() + storage.Value.DownloadLinkLifetime).ToUnixTimeSeconds() / Granularity * Granularity + Granularity;
+        return $"{url}?expires={expires}&signature={Signature(url, expires)}";
+    }
+
+    public bool Verify(string url, string? expires, string? signature)
+    {
+        if (signature is null || !long.TryParse(expires, NumberStyles.None, CultureInfo.InvariantCulture, out var seconds)) return false;
+        if (time.GetUtcNow().ToUnixTimeSeconds() > seconds) return false;
+        return CryptographicOperations.FixedTimeEquals(Encoding.ASCII.GetBytes(Signature(url, seconds)), Encoding.ASCII.GetBytes(signature));
+    }
+
+    private string Signature(string url, long expires) =>
+        Convert.ToHexStringLower(HMACSHA256.HashData(key, Encoding.UTF8.GetBytes($"{url}|{expires}")));
+}
+
+public sealed partial class LocalFileStorage(IOptions<StorageOptions> options, FileUrlSigner signer) : IFileStorage
 {
     private string Root => Path.GetFullPath(options.Value.RootPath);
+
+    private string Prefix => options.Value.PublicPath.TrimEnd('/') + "/";
 
     public async Task<string> SaveAsync(string folder, string fileName, Stream content, CancellationToken cancellationToken = default)
     {
@@ -29,15 +60,17 @@ public sealed partial class LocalFileStorage(IOptions<StorageOptions> options) :
         await using (var file = File.Create(Path.Combine(directory, name)))
             await content.CopyToAsync(file, cancellationToken);
 
-        return $"{options.Value.PublicPath.TrimEnd('/')}/{safeFolder}/{name}";
+        return $"{Prefix}{safeFolder}/{name}";
     }
+
+    public string? GetDownloadUrl(string? url) =>
+        url is not null && url.StartsWith(Prefix, StringComparison.Ordinal) ? signer.Sign(url) : url;
 
     public Task DeleteAsync(string url, CancellationToken cancellationToken = default)
     {
-        var prefix = options.Value.PublicPath.TrimEnd('/') + "/";
-        if (!url.StartsWith(prefix, StringComparison.Ordinal)) return Task.CompletedTask;
+        if (!url.StartsWith(Prefix, StringComparison.Ordinal)) return Task.CompletedTask;
 
-        var path = Path.GetFullPath(Path.Combine(Root, url[prefix.Length..]));
+        var path = Path.GetFullPath(Path.Combine(Root, url[Prefix.Length..]));
         if (path.StartsWith(Root, StringComparison.OrdinalIgnoreCase) && File.Exists(path)) File.Delete(path);
         return Task.CompletedTask;
     }

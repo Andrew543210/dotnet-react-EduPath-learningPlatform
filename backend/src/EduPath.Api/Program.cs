@@ -31,7 +31,18 @@ if (app.Environment.IsDevelopment())
 }
 
 var storage = app.Services.GetRequiredService<IOptions<StorageOptions>>().Value;
+var signer = app.Services.GetRequiredService<FileUrlSigner>();
 Directory.CreateDirectory(storage.RootPath);
+app.Use((context, next) =>
+{
+    var request = context.Request;
+    if (!request.Path.StartsWithSegments(storage.PublicPath)
+        || signer.Verify(request.Path.Value!, request.Query["expires"], request.Query["signature"]))
+        return next(context);
+
+    context.Response.StatusCode = StatusCodes.Status404NotFound;
+    return Task.CompletedTask;
+});
 app.UseStaticFiles(new StaticFileOptions
 {
     FileProvider = new PhysicalFileProvider(storage.RootPath),

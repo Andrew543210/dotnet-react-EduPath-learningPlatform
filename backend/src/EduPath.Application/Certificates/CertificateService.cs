@@ -65,7 +65,8 @@ public sealed class CertificateService(
     public async Task<IReadOnlyList<CertificateDto>> GetMineAsync(CancellationToken ct)
     {
         var userId = currentUser.RequireId();
-        return await Project(db.Certificates.Where(c => c.UserId == userId).OrderByDescending(c => c.IssueDate)).ToListAsync(ct);
+        var certificates = await Project(db.Certificates.Where(c => c.UserId == userId).OrderByDescending(c => c.IssueDate)).ToListAsync(ct);
+        return certificates.Select(WithDownloadLink).ToList();
     }
 
     public async Task<CertificateDto> GetAsync(int certificateId, CancellationToken ct)
@@ -76,12 +77,15 @@ public sealed class CertificateService(
                      ?? throw new NotFoundException("Сертифікат не знайдено");
         if (access.UserId != userId && access.TeacherId != userId && !currentUser.IsAdmin())
             throw new ForbiddenAccessException("Цей сертифікат належить іншому користувачу");
-        return await Project(db.Certificates.Where(c => c.Id == certificateId)).FirstAsync(ct);
+        return WithDownloadLink(await Project(db.Certificates.Where(c => c.Id == certificateId)).FirstAsync(ct));
     }
 
     public async Task<CertificateDto> VerifyAsync(string number, CancellationToken ct) =>
-        await Project(db.Certificates.Where(c => c.Number == number.Trim().ToUpperInvariant())).FirstOrDefaultAsync(ct)
-        ?? throw new NotFoundException("Сертифіката з таким номером не існує");
+        WithDownloadLink(await Project(db.Certificates.Where(c => c.Number == number.Trim().ToUpperInvariant())).FirstOrDefaultAsync(ct)
+                         ?? throw new NotFoundException("Сертифіката з таким номером не існує"));
+
+    private CertificateDto WithDownloadLink(CertificateDto certificate) =>
+        certificate with { FileUrl = storage.GetDownloadUrl(certificate.FileUrl) };
 
     private static IQueryable<CertificateDto> Project(IQueryable<Certificate> query) =>
         query.AsNoTracking().Select(c => new CertificateDto(

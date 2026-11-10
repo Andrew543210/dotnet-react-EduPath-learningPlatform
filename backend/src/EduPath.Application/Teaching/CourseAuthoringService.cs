@@ -277,7 +277,7 @@ public sealed class CourseAuthoringService(
         return new CourseEditorDto(c.Id, c.Title, c.Summary, c.Description, c.Price, c.Level, c.CategoryId, c.Outcomes, c.Status,
             c.ModerationComment, c.UpdatedAt, students,
             c.OrderedLessons().Select(l => new EditorLessonDto(l.Id, l.Title, l.Content, l.OrderNumber, l.DurationMinutes, l.VideoUrl,
-                l.MaterialUrl, l.MaterialName,
+                storage.GetDownloadUrl(l.MaterialUrl), l.MaterialName,
                 l.Tests.OrderBy(t => t.Id).Select(t => new EditorTestDto(t.Id, t.Title, t.PassingScore, testsWithResults.Contains(t.Id),
                     t.Questions.OrderBy(q => q.OrderNumber)
                         .Select(q => new EditorQuestionDto(q.Id, q.Text, q.Options, q.CorrectAnswer, q.Explanation)).ToList())).ToList()))

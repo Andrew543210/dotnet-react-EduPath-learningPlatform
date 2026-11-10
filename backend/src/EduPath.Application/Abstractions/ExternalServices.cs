@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using EduPath.Application.Notifications;
 
 namespace EduPath.Application.Abstractions;
@@ -14,6 +15,9 @@ public interface IPaymentGateway
 public interface IFileStorage
 {
     Task<string> SaveAsync(string folder, string fileName, Stream content, CancellationToken cancellationToken = default);
+
+    [return: NotNullIfNotNull(nameof(url))]
+    string? GetDownloadUrl(string? url);
 
     Task DeleteAsync(string url, CancellationToken cancellationToken = default);
 }

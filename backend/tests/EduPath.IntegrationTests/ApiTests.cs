@@ -397,6 +397,12 @@ public sealed class TeachingAndAdminTests(EduPathFactory factory)
         Assert.Equal("nosniff", file.Headers.GetValues("X-Content-Type-Options").Single());
         Assert.StartsWith("sandbox", file.Headers.GetValues("Content-Security-Policy").Single());
 
+        var path = url[..url.IndexOf('?')];
+        var anonymous = factory.CreateClient();
+        Assert.Equal(HttpStatusCode.NotFound, (await anonymous.GetAsync(path)).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await anonymous.GetAsync(url[..^4] + "0000")).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await anonymous.GetAsync(path.Replace(".txt", ".md") + url[url.IndexOf('?')..])).StatusCode);
+
         using var page = new MultipartFormDataContent { { new ByteArrayContent("<script>alert(1)</script>"u8.ToArray()), "file", "notes.html" } };
         var rejected = await teacher.PostAsync($"/api/teach/lessons/{editor.Lessons[0].Id}/material", page);
         Assert.Equal(HttpStatusCode.UnprocessableEntity, rejected.StatusCode);
