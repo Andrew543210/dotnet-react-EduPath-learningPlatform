@@ -1,0 +1,172 @@
+namespace EduPath.Api.Localization;
+
+public static class EnglishCatalog
+{
+    public static readonly IReadOnlyDictionary<string, string> Exact = new Dictionary<string, string>
+    {
+        ["Увійдіть, щоб продовжити"] = "Sign in to continue",
+        ["Неправильний email або пароль"] = "Incorrect email or password",
+        ["Обліковий запис заблоковано. Зверніться до адміністратора"] = "This account is blocked. Contact the administrator",
+        ["Обліковий запис заблоковано адміністратором"] = "This account was blocked by the administrator",
+        ["Обліковий запис з цим email уже існує. Увійдіть або скористайтеся іншою адресою"] =
+            "An account with this email already exists. Sign in or use another address",
+        ["Реєстрацію викладачів тимчасово закрито. Напишіть адміністратору платформи"] =
+            "Teacher sign-up is temporarily closed. Contact the platform administrator",
+        ["Можна зареєструватися лише як студент або викладач"] = "You can sign up only as a student or a teacher",
+        ["Поточний пароль введено неправильно"] = "The current password is incorrect",
+        ["Користувача не знайдено"] = "User not found",
+        ["Вкажіть ім'я"] = "Enter your name",
+        ["Вкажіть email"] = "Enter your email",
+        ["Email має бути у форматі name@example.com"] = "Email must look like name@example.com",
+        ["Вкажіть пароль"] = "Enter a password",
+        ["Вкажіть поточний пароль"] = "Enter your current password",
+        ["Пароль має містити щонайменше 8 символів"] = "Password must be at least 8 characters long",
+        ["Додайте до пароля хоча б одну цифру"] = "Add at least one digit to the password",
+        ["Додайте до пароля хоча б одну літеру"] = "Add at least one letter to the password",
+        ["Новий пароль має відрізнятися від поточного"] = "The new password must differ from the current one",
+        ["Пароль не задано"] = "Password is not set",
+        ["Опис профілю"] = "Profile description",
+
+        ["Курс не знайдено"] = "Course not found",
+        ["Курс не знайдено або ще не опублікований"] = "Course not found or not published yet",
+        ["Викладача не знайдено"] = "Teacher not found",
+        ["Категорію не знайдено"] = "Category not found",
+        ["Категорія з таким slug уже існує"] = "A category with this slug already exists",
+        ["У категорії є курси. Перенесіть їх в іншу категорію перед видаленням"] =
+            "This category has courses. Move them to another category before deleting it",
+        ["Вкажіть назву категорії"] = "Enter a category name",
+        ["Вкажіть slug категорії"] = "Enter a category slug",
+        ["Slug — латиниця в нижньому регістрі, цифри та дефіс"] = "Slug may contain lowercase Latin letters, digits and hyphens",
+        ["Вкажіть назву курсу"] = "Enter a course title",
+        ["Додайте короткий опис курсу"] = "Add a short course summary",
+        ["Додайте короткий опис: одне-два речення про курс"] = "Add a short summary: one or two sentences about the course",
+        ["Оберіть категорію"] = "Choose a category",
+        ["Оберіть категорію зі списку"] = "Choose a category from the list",
+        ["Ціна — від 0 до 100 000 грн"] = "Price must be between 0 and 100,000 UAH",
+        ["Архівний курс не можна змінювати"] = "An archived course cannot be changed",
+        ["Додайте хоча б один урок перед публікацією"] = "Add at least one lesson before publishing",
+        ["Курс уже опубліковано або він чекає на перевірку"] = "The course is already published or awaiting review",
+        ["Курс не чекає на перевірку"] = "The course is not awaiting review",
+        ["Редагувати курс може лише його автор"] = "Only the course author can edit it",
+        ["На курсі вже є студенти або оплати. Архівуйте курс замість видалення"] =
+            "The course already has students or payments. Archive it instead of deleting",
+        ["Поясніть викладачу, що потрібно виправити"] = "Explain to the teacher what needs fixing",
+        ["Поясніть викладачу причину відхилення"] = "Explain to the teacher why the course was rejected",
+        ["безкоштовно"] = "free",
+
+        ["Урок не знайдено"] = "Lesson not found",
+        ["Урок не належить цьому курсу"] = "The lesson does not belong to this course",
+        ["Урок доступний після запису на курс"] = "The lesson is available after you enroll in the course",
+        ["Урок зарахується після тесту: потрібно набрати не менше порогового балу"] =
+            "The lesson counts as completed after the test: reach the passing score",
+        ["Вкажіть назву уроку"] = "Enter a lesson title",
+        ["Тривалість — від 1 до 600 хвилин"] = "Duration must be between 1 and 600 minutes",
+        ["Тривалість уроку — від 1 до 600 хвилин"] = "Lesson duration must be between 1 and 600 minutes",
+        ["Посилання на відео має починатися з https://"] = "The video link must start with https://",
+        ["Файл порожній"] = "The file is empty",
+        ["Файл більший за 20 МБ. Стисніть його або завантажте частинами"] = "The file is larger than 20 MB. Compress it or upload it in parts",
+        ["Студенти вже складали тест цього уроку. Відредагуйте урок замість видалення"] =
+            "Students have already taken this lesson's test. Edit the lesson instead of deleting it",
+
+        ["Проходити курси можуть лише студенти. Увійдіть зі студентського акаунта"] =
+            "Only students can take courses. Sign in with a student account",
+        ["Цей курс платний: оформіть оплату, щоб отримати доступ"] = "This is a paid course: complete the payment to get access",
+        ["Ви вже маєте доступ до цього курсу"] = "You already have access to this course",
+        ["Запис на курс не активовано"] = "The enrollment is not active",
+
+        ["Тест не знайдено"] = "Test not found",
+        ["Тест не належить цьому уроку"] = "The test does not belong to this lesson",
+        ["Результат не знайдено"] = "Result not found",
+        ["У тесті ще немає питань"] = "The test has no questions yet",
+        ["Тест має містити хоча б одне питання"] = "A test must contain at least one question",
+        ["Номер спроби має бути додатним"] = "The attempt number must be positive",
+        ["Бал має бути від 0 до 100"] = "Score must be between 0 and 100",
+        ["Здавати тести можуть лише студенти. Автор бачить тест у режимі перегляду"] =
+            "Only students can submit tests. The author sees the test in preview mode",
+        ["Тест уже складали студенти, тому його не можна видалити"] = "Students have already taken this test, so it cannot be deleted",
+        ["Тест уже складали студенти: змінити можна назву й поріг. Для нових питань створіть окремий тест"] =
+            "Students have already taken this test: only the title and passing score can change. Create a separate test for new questions",
+        ["Надішліть відповіді на питання"] = "Send answers to the questions",
+        ["Забагато відповідей"] = "Too many answers",
+        ["Вкажіть назву тесту"] = "Enter a test title",
+        ["Вкажіть текст питання"] = "Enter the question text",
+        ["Кожне питання має містити текст"] = "Every question needs text",
+        ["Позначте правильну відповідь"] = "Mark the correct answer",
+        ["Позначте правильну відповідь у кожному питанні"] = "Mark the correct answer in every question",
+        ["У кожному питанні потрібно щонайменше два варіанти"] = "Every question needs at least two options",
+        ["Додайте хоча б одне питання"] = "Add at least one question",
+        ["Поріг — від 1 до 100 %"] = "Passing score must be between 1 and 100%",
+        ["Поріг має бути від 1 до 100 %"] = "Passing score must be between 1 and 100%",
+        ["Поріг проходження — від 1 до 100 %"] = "Passing score must be between 1 and 100%",
+
+        ["Купувати курси можуть лише студенти"] = "Only students can buy courses",
+        ["Курс безкоштовний: запишіться на нього без оплати"] = "The course is free: enroll without payment",
+        ["Безкоштовний курс не потребує оплати"] = "A free course does not require payment",
+        ["Курс уже придбано — він є у розділі «Мої курси»"] = "You already own this course — find it in My courses",
+        ["Платіж не знайдено"] = "Payment not found",
+        ["Платіж уже оброблено"] = "The payment has already been processed",
+        ["Платіж відхилено"] = "Payment declined",
+        ["Номер картки має містити від 12 до 19 цифр"] = "The card number must have 12 to 19 digits",
+        ["Вкажіть ім'я власника картки"] = "Enter the cardholder name",
+        ["Термін дії — у форматі ММ/РР"] = "Expiry date must be in MM/YY format",
+        ["Термін дії картки минув"] = "The card has expired",
+        ["CVC — три або чотири цифри"] = "CVC must be three or four digits",
+        ["банк відхилив картку"] = "the bank declined the card",
+        ["на картці недостатньо коштів"] = "insufficient funds on the card",
+        ["термін дії картки минув"] = "the card has expired",
+        ["неправильний CVC"] = "incorrect CVC",
+        ["номер картки недійсний"] = "the card number is invalid",
+
+        ["Сертифікат не знайдено"] = "Certificate not found",
+        ["Сертифіката з таким номером не існує"] = "No certificate with this number exists",
+        ["Цей сертифікат належить іншому користувачу"] = "This certificate belongs to another user",
+
+        ["Відгук не знайдено"] = "Review not found",
+        ["Відгук можуть залишити лише студенти цього курсу"] = "Only students of this course can leave a review",
+        ["Ви ще не залишали відгук на цей курс"] = "You haven't reviewed this course yet",
+        ["Оберіть оцінку від 1 до 5"] = "Choose a rating from 1 to 5",
+        ["Оцінка має бути від 1 до 5"] = "Rating must be between 1 and 5",
+        ["Відгук не може бути довшим за 2000 символів"] = "A review cannot be longer than 2000 characters",
+
+        ["Сповіщення не знайдено"] = "Notification not found",
+        ["Текст сповіщення порожній"] = "The notification text is empty",
+        ["Напишіть текст сповіщення"] = "Write the notification text",
+        ["Надсилати сповіщення може лише автор курсу"] = "Only the course author can send notifications",
+        ["Статистика доступна лише автору курсу"] = "Statistics are available only to the course author",
+        ["Власну роль змінити не можна"] = "You cannot change your own role",
+        ["Не можна заблокувати власний обліковий запис"] = "You cannot block your own account",
+        ["Вкажіть назву платформи"] = "Enter the platform name",
+        ["Вкажіть коректний email підтримки"] = "Enter a valid support email",
+        ["Сталася непередбачена помилка. Спробуйте ще раз за хвилину"] = "Something went wrong. Try again in a minute",
+        ["Вітаємо на EduPath! Оберіть перший курс у каталозі."] = "Welcome to EduPath! Pick your first course in the catalog.",
+        ["Вітаємо на EduPath! Створіть перший курс у кабінеті викладача."] =
+            "Welcome to EduPath! Create your first course in the teaching workspace.",
+        ["Оновили сторінку уроку: зміст курсу тепер завжди під рукою, а матеріали можна завантажити одним кліком."] =
+            "We updated the lesson page: the course outline is always at hand, and materials download in one click.",
+        ["студент"] = "student",
+        ["викладач"] = "teacher",
+        ["адміністратор"] = "administrator",
+    };
+
+    public static readonly IReadOnlyDictionary<string, string> Templates = new Dictionary<string, string>
+    {
+        ["Доступ до курсу «{0}» відкрито. Перший урок уже чекає."] = "Access to “{0}” is open. Your first lesson is waiting.",
+        ["Новий студент на курсі «{0}»"] = "New student in “{0}”",
+        ["Урок «{0}» зараховано. Прогрес курсу: {1}%."] = "Lesson “{0}” completed. Course progress: {1}%.",
+        ["Курс «{0}» завершено. Сертифікат {1} уже у вашому профілі."] = "You completed “{0}”. Certificate {1} is in your profile.",
+        ["Тест «{0}»: {1}% при порозі {2}%. Перегляньте урок і спробуйте ще раз."] =
+            "Test “{0}”: {1}% with a passing score of {2}%. Review the lesson and try again.",
+        ["Оплату {0} грн за курс «{1}» підтверджено."] = "Payment of UAH {0} for “{1}” confirmed.",
+        ["Оплата курсу «{0}» не пройшла: {1}. Спробуйте іншу картку."] = "Payment for “{0}” failed: {1}. Try another card.",
+        ["Новий курс на перевірці: «{0}»"] = "New course awaiting review: “{0}”",
+        ["Курс «{0}» опубліковано: студенти вже бачать його в каталозі."] = "“{0}” is published: students can see it in the catalog.",
+        ["Курс «{0}» повернуто на доопрацювання: {1}"] = "“{0}” was sent back for changes: {1}",
+        ["Адміністратор змінив вашу роль на «{0}». Увійдіть знову, щоб оновити меню."] =
+            "An administrator changed your role to “{0}”. Sign in again to update the menu.",
+        ["Недопустимий перехід зі стану {0} за подією {1}"] = "Invalid transition from state {0} on event {1}",
+        ["Питання «{0}» має містити щонайменше два варіанти"] = "Question “{0}” must have at least two options",
+        ["Правильна відповідь для «{0}» має бути одним із варіантів"] = "The correct answer for “{0}” must be one of the options",
+        ["Ціна має бути від 0 до {0} грн"] = "Price must be between 0 and {0} UAH",
+        ["{0} (не більше {1} символів)"] = "{0} (max {1} characters)",
+    };
+}
