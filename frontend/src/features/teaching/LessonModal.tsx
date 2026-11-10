@@ -8,6 +8,8 @@ import { Button, Field, Input, Segmented, Textarea } from '@/ui/controls'
 import { Markdown } from '@/ui/Markdown'
 import { Modal, useToast } from '@/ui/overlay'
 
+const materialTypes = '.pdf,.txt,.md,.csv,.json,.sql,.zip,.docx,.xlsx,.pptx,.png,.jpg,.jpeg,.webp'
+
 type Errors = Partial<Record<'title' | 'durationMinutes' | 'videoUrl' | 'content', string>>
 
 export function LessonModal({
@@ -168,6 +170,7 @@ export function LessonModal({
               <input
                 id={`material-${lesson.id}`}
                 type="file"
+                accept={materialTypes}
                 className="visually-hidden"
                 onChange={(e) => {
                   const file = e.target.files?.[0]

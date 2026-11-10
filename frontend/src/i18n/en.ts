@@ -454,7 +454,7 @@ export const en: Messages = {
       upload: 'Upload file',
       replace: 'Replace file',
       removeMaterial: 'Remove file',
-      maxSize: 'Up to 20 MB',
+      maxSize: 'PDF, Office, ZIP, images or text up to 20 MB',
       moveUp: 'Move up',
       moveDown: 'Move down',
       deleteLesson: 'Delete lesson',

@@ -391,7 +391,15 @@ public sealed class TeachingAndAdminTests(EduPathFactory factory)
         var updated = await teacher.GetJson<CourseEditorDto>($"/api/teach/courses/{course.Id}");
         var url = updated.Lessons[0].MaterialUrl!;
         Assert.Equal("Dockerfile.txt", updated.Lessons[0].MaterialName);
-        Assert.Contains("aspnet:10.0", await factory.CreateClient().GetStringAsync(url));
+
+        var file = await factory.CreateClient().GetAsync(url);
+        Assert.Contains("aspnet:10.0", await file.Content.ReadAsStringAsync());
+        Assert.Equal("nosniff", file.Headers.GetValues("X-Content-Type-Options").Single());
+        Assert.StartsWith("sandbox", file.Headers.GetValues("Content-Security-Policy").Single());
+
+        using var page = new MultipartFormDataContent { { new ByteArrayContent("<script>alert(1)</script>"u8.ToArray()), "file", "notes.html" } };
+        var rejected = await teacher.PostAsync($"/api/teach/lessons/{editor.Lessons[0].Id}/material", page);
+        Assert.Equal(HttpStatusCode.UnprocessableEntity, rejected.StatusCode);
     }
 
     [Fact]

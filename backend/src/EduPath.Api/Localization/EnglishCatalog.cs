@@ -65,6 +65,8 @@ public static class EnglishCatalog
         ["Посилання на відео має починатися з https://"] = "The video link must start with https://",
         ["Файл порожній"] = "The file is empty",
         ["Файл більший за 20 МБ. Стисніть його або завантажте частинами"] = "The file is larger than 20 MB. Compress it or upload it in parts",
+        ["Цей тип файлу не підтримується. Завантажте PDF, документ Office, ZIP-архів, зображення або текстовий файл"] =
+            "This file type is not supported. Upload a PDF, an Office document, a ZIP archive, an image or a text file",
         ["Студенти вже складали тест цього уроку. Відредагуйте урок замість видалення"] =
             "Students have already taken this lesson's test. Edit the lesson instead of deleting it",
 

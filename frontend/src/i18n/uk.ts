@@ -455,7 +455,7 @@ export const uk = {
       upload: 'Завантажити файл',
       replace: 'Замінити файл',
       removeMaterial: 'Прибрати файл',
-      maxSize: 'До 20 МБ',
+      maxSize: 'PDF, Office, ZIP, зображення або текст до 20 МБ',
       moveUp: 'Вище',
       moveDown: 'Нижче',
       deleteLesson: 'Видалити урок',

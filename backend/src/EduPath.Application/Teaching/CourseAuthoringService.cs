@@ -56,6 +56,11 @@ public sealed class CourseAuthoringService(
 {
     public const long MaxMaterialBytes = 20 * 1024 * 1024;
 
+    public static readonly IReadOnlySet<string> MaterialExtensions = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+    {
+        ".pdf", ".txt", ".md", ".csv", ".json", ".sql", ".zip", ".docx", ".xlsx", ".pptx", ".png", ".jpg", ".jpeg", ".webp",
+    };
+
     public async Task<IReadOnlyList<CourseCardDto>> GetMyCoursesAsync(CancellationToken ct)
     {
         var userId = currentUser.RequireId();
@@ -161,6 +166,8 @@ public sealed class CourseAuthoringService(
     {
         if (length <= 0) throw new DomainException("Файл порожній");
         if (length > MaxMaterialBytes) throw new DomainException("Файл більший за 20 МБ. Стисніть його або завантажте частинами");
+        if (!MaterialExtensions.Contains(Path.GetExtension(fileName)))
+            throw new DomainException("Цей тип файлу не підтримується. Завантажте PDF, документ Office, ZIP-архів, зображення або текстовий файл");
 
         var (course, lesson) = await LoadOwnedLessonAsync(lessonId, ct);
         var previous = lesson.MaterialUrl;

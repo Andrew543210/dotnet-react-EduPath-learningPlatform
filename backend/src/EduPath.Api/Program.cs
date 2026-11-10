@@ -38,6 +38,12 @@ app.UseStaticFiles(new StaticFileOptions
     RequestPath = storage.PublicPath,
     ServeUnknownFileTypes = true,
     DefaultContentType = "application/octet-stream",
+    OnPrepareResponse = context =>
+    {
+        var headers = context.Context.Response.Headers;
+        headers.XContentTypeOptions = "nosniff";
+        headers.ContentSecurityPolicy = "sandbox; default-src 'none'; img-src 'self'; style-src 'unsafe-inline'";
+    },
 });
 
 var hasSpa = Directory.Exists(app.Environment.WebRootPath);
