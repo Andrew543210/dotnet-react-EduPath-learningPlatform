@@ -163,7 +163,7 @@ function ProgramTab({ course, onChange }: { course: CourseEditor; onChange: (c: 
           key={testModal.test?.id ?? `new-${testModal.lessonId}`}
           lessonId={testModal.lessonId}
           test={testModal.test}
-          defaultPassingScore={70}
+          defaultPassingScore={course.defaultPassingScore}
           open
           onClose={() => setTestModal(null)}
           onSaved={onChange}

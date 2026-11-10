@@ -46,6 +46,7 @@ public sealed record CourseEditorDto(
     string? ModerationComment,
     DateTime UpdatedAt,
     int StudentCount,
+    int DefaultPassingScore,
     IReadOnlyList<EditorLessonDto> Lessons);
 
 public sealed class CourseAuthoringService(
@@ -292,9 +293,11 @@ public sealed class CourseAuthoringService(
         var testsWithResults = (await db.TestResults.Where(r => testIds.Contains(r.TestId)).Select(r => r.TestId).Distinct()
             .ToListAsync(ct)).ToHashSet();
         var students = await db.Enrollments.CountAsync(e => e.CourseId == c.Id && e.Status != EnrollmentStatus.Pending, ct);
+        var passingScore = await db.Settings.AsNoTracking().Select(s => (int?)s.DefaultPassingScore).FirstOrDefaultAsync(ct)
+                           ?? Test.DefaultPassingScore;
 
         return new CourseEditorDto(c.Id, c.Title, c.Summary, c.Description, c.Price, c.Level, c.CategoryId, c.Outcomes, c.Status,
-            c.ModerationComment, c.UpdatedAt, students,
+            c.ModerationComment, c.UpdatedAt, students, passingScore,
             c.OrderedLessons().Select(l => new EditorLessonDto(l.Id, l.Title, l.Content, l.OrderNumber, l.DurationMinutes, l.VideoUrl,
                 storage.GetDownloadUrl(l.MaterialUrl), l.MaterialName,
                 l.Tests.OrderBy(t => t.Id).Select(t => new EditorTestDto(t.Id, t.Title, t.PassingScore, testsWithResults.Contains(t.Id),

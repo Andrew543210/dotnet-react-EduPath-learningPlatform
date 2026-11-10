@@ -485,6 +485,10 @@ public sealed class TeachingAndAdminTests(EduPathFactory factory)
 
         var settings = await admin.GetJson<SettingsDto>("/api/admin/settings");
         Assert.Equal("EduPath", settings.PlatformName);
+        var teacher = await factory.SignInAsync("teacher@edupath.dev");
+        var course = (await teacher.GetJson<List<CourseCardDto>>("/api/teach/courses")).First();
+        var editor = await teacher.GetJson<CourseEditorDto>($"/api/teach/courses/{course.Id}");
+        Assert.Equal(settings.DefaultPassingScore, editor.DefaultPassingScore);
 
         var publicSettings = await factory.CreateClient().GetJson<PublicSettingsDto>("/api/settings/public");
         Assert.True(publicSettings.AllowTeacherRegistration);

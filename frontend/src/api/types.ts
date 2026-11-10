@@ -373,6 +373,7 @@ export interface CourseEditor {
   moderationComment: string | null
   updatedAt: string
   studentCount: number
+  defaultPassingScore: number
   lessons: EditorLesson[]
 }
 
