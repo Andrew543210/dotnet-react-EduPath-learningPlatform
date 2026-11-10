@@ -1,0 +1,299 @@
+.page {
+  max-width: 1000px;
+  margin-inline: auto;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.formCard {
+  padding: var(--space-6);
+}
+
+.form {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+.cardPreview {
+  display: grid;
+  gap: var(--space-4);
+  max-width: 360px;
+  aspect-ratio: 1.586;
+  padding: var(--space-5);
+  border-radius: 14px;
+  background: linear-gradient(135deg, #17423c, #116d63);
+  color: #fff;
+  font-family: var(--font-mono);
+  align-content: space-between;
+  margin-bottom: var(--space-2);
+}
+
+.cardPreview[data-brand='mastercard'] {
+  background: linear-gradient(135deg, #3a2a1c, #8a4b23);
+}
+
+.cardPreview[data-brand='amex'] {
+  background: linear-gradient(135deg, #1d3557, #2f62c9);
+}
+
+.cardTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.cardTop svg {
+  width: 28px;
+  height: 28px;
+  opacity: 0.85;
+}
+
+.cardBrand {
+  font-family: var(--font-sans);
+  font-weight: 750;
+  letter-spacing: 0.04em;
+}
+
+.cardNumber {
+  font-size: 1.2rem;
+  letter-spacing: 0.06em;
+}
+
+.cardBottom {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-size: 0.78rem;
+  opacity: 0.9;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.cardBottom span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.secure {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.aside {
+  display: grid;
+  gap: var(--space-4);
+}
+
+.summaryTitle {
+  font-weight: 620;
+  margin-bottom: var(--space-3);
+}
+
+.summaryCourse {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.summaryCover {
+  border-radius: var(--radius-md);
+}
+
+.summaryCover > span {
+  left: 12px !important;
+  bottom: 12px !important;
+  width: 40px;
+  height: 40px;
+}
+
+.summaryName {
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-top: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border);
+}
+
+.total strong {
+  font-size: var(--text-xl);
+}
+
+.access {
+  margin-top: var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+.sandbox {
+  padding: var(--space-4) var(--space-5);
+  border: 1px dashed var(--accent);
+  border-radius: var(--radius-lg);
+  background: var(--accent-soft);
+}
+
+.sandboxTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 650;
+  color: var(--accent-text);
+}
+
+.sandboxTitle svg {
+  width: 18px;
+  height: 18px;
+}
+
+.sandboxText {
+  margin-top: 4px;
+  font-size: var(--text-xs);
+  color: var(--text);
+}
+
+.testCards {
+  list-style: none;
+  margin: var(--space-3) 0 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.testCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+  cursor: pointer;
+  text-align: left;
+}
+
+.testCard:hover:not(:disabled) {
+  border-color: var(--primary);
+}
+
+.testCard:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.testNumber {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+}
+
+.testKind {
+  font-size: 0.72rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.testKind[data-kind='success'] {
+  color: var(--success);
+}
+
+.testKind[data-kind='declined'],
+.testKind[data-kind='funds'] {
+  color: var(--danger);
+}
+
+.outcome {
+  max-width: 620px;
+  margin-inline: auto;
+  display: grid;
+  gap: var(--space-4);
+  justify-items: center;
+  text-align: center;
+  padding: var(--space-7) var(--space-6);
+}
+
+.outcomeIcon {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+}
+
+.outcomeIcon svg {
+  width: 32px;
+  height: 32px;
+}
+
+.outcomeOk {
+  background: var(--success-soft);
+  color: var(--success);
+}
+
+.outcomeBad {
+  background: var(--danger-soft);
+  color: var(--danger);
+}
+
+.receipt {
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px var(--space-4);
+  margin: var(--space-2) 0 0;
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  font-size: var(--text-sm);
+  text-align: left;
+}
+
+.receipt dt {
+  color: var(--text-muted);
+}
+
+.receipt dd {
+  margin: 0;
+  text-align: right;
+  font-weight: 540;
+  overflow-wrap: anywhere;
+}
+
+.outcomeActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+@media (max-width: 860px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .aside {
+    order: -1;
+  }
+
+  .formCard {
+    padding: var(--space-5);
+  }
+}
