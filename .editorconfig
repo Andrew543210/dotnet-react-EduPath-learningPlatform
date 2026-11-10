@@ -16,5 +16,8 @@ csharp_style_var_when_type_is_apparent = true:suggestion
 csharp_using_directive_placement = outside_namespace:suggestion
 dotnet_sort_system_directives_first = true
 
+[**/Migrations/**.cs]
+generated_code = true
+
 [*.md]
 trim_trailing_whitespace = false
