@@ -1,0 +1,146 @@
+.bell {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.bell:hover {
+  background: var(--surface-sunken);
+  color: var(--text);
+}
+
+.bell svg {
+  width: 20px;
+  height: 20px;
+}
+
+.count {
+  position: absolute;
+  top: 5px;
+  right: 4px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: var(--radius-pill);
+  background: var(--danger);
+  color: #fff;
+  font-size: 0.68rem;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+  border: 2px solid var(--surface);
+  box-sizing: content-box;
+}
+
+.panel {
+  width: min(380px, calc(100vw - 48px));
+  margin: calc(var(--space-2) * -1);
+}
+
+.panelHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 48px;
+  padding: 6px 8px 6px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.panelEmpty {
+  padding: var(--space-6) var(--space-4);
+  text-align: center;
+  color: var(--text-muted);
+  font-size: var(--text-sm);
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 380px;
+  overflow-y: auto;
+}
+
+.item {
+  display: grid;
+  gap: 2px;
+  width: 100%;
+  padding: 12px 16px 12px 20px;
+  border: 0;
+  border-bottom: 1px solid var(--border);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  position: relative;
+}
+
+.item:hover {
+  background: var(--surface-hover);
+}
+
+.item[data-unread]::before {
+  content: '';
+  position: absolute;
+  left: 8px;
+  top: 19px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--primary);
+}
+
+.itemType {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-subtle);
+}
+
+.itemText {
+  font-size: var(--text-sm);
+  color: var(--text);
+  line-height: 1.45;
+}
+
+.item[data-unread] .itemText {
+  font-weight: 560;
+}
+
+.itemTime {
+  font-size: var(--text-xs);
+  color: var(--text-subtle);
+}
+
+.panelFoot {
+  display: block;
+  padding: 12px;
+  text-align: center;
+  font-size: var(--text-sm);
+  font-weight: 560;
+  text-decoration: none;
+}
+
+.pageList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.pageList .item {
+  padding: 16px 20px 16px 28px;
+}
+
+.pageList .item[data-unread]::before {
+  left: 12px;
+  top: 24px;
+}
+
+.pageList li:last-child .item {
+  border-bottom: 0;
+}
